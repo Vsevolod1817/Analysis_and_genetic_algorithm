@@ -5,6 +5,8 @@ from deap import base, creator, tools, algorithms
 import time
 import matplotlib.pyplot as plt
 from sklearn.cluster import KMeans
+import tkinter as tk
+from tkinter import scrolledtext, messagebox
 
 
 # Подключение к базе данных MySQL
@@ -72,6 +74,11 @@ all_best_times = []
 def optimize_sql():
     global best_times, avg_times, all_best_times
 
+    # Очистка списков перед началом оптимизации
+    best_times = []
+    avg_times = []
+    all_best_times = []
+
     # Создание начальной популяции
     population = toolbox.population(n=10)
 
@@ -108,22 +115,47 @@ def optimize_sql():
             best_individual = tools.selBest(population, k=1)[0]
             # Сохраняем лучшее время выполнения за все итерации
             all_best_times.append(min(best_times))
+
+        # Обновление текстового поля с ходом работы
+        result_text.insert(tk.END, f"Итерация {gen+1}: Лучшее время выполнения {best_time:.6f} сек, Среднее время выполнения {avg_time:.6f} сек\n")
+        result_text.see(tk.END)  # Прокручиваем вниз, чтобы видеть последний результат
+        app.update_idletasks()  # Обновление интерфейса
+
     # Выводим лучший запрос за все итерации
     best_query = best_individual[0]
-    print(f"Лучший запрос за все итерации: {best_query}, общее время выполнения: {best_time_overall}")
+    result_text.insert(tk.END, f"\nЛучший запрос за все итерации: {best_query}\nОбщее время выполнения: {best_time_overall:.6f} сек\n")
+    plot_results()
 
 
-# Вызываем функцию оптимизации SQL
-optimize_sql()
+def plot_results():
+    plt.close()  # Закрываем предыдущий график
 
-# Визуализация времени выполнения запросов по итерациям генетического алгоритма
-plt.plot(range(1, len(best_times) + 1), best_times, label='Лучшее время выполнения')
-plt.plot(range(1, len(avg_times) + 1), avg_times, label='Среднее время выполнения')
-plt.plot(range(1, len(all_best_times) + 1), all_best_times, label='Лучшее время выполнения за все итерации', linestyle='--')
-plt.axhline(min(all_best_times), color='r', linestyle='--', label='Лучшее время выполнения за все итерации (минимум)')
-plt.xlabel('Итерация')
-plt.ylabel('Время выполнения (сек)')
-plt.title('Время выполнения запросов по итерациям')
-plt.legend()
-plt.grid(True)
-plt.show()
+    plt.plot(range(1, len(best_times) + 1), best_times, label='Лучшее время выполнения')
+    plt.plot(range(1, len(avg_times) + 1), avg_times, label='Среднее время выполнения')
+    plt.plot(range(1, len(all_best_times) + 1), all_best_times, label='Лучшее время выполнения за все итерации', linestyle='--')
+    plt.axhline(min(all_best_times), color='r', linestyle='--', label='Лучшее время выполнения за все итерации (минимум)')
+    plt.xlabel('Итерация')
+    plt.ylabel('Время выполнения (сек)')
+    plt.title('Время выполнения запросов по итерациям')
+    plt.legend(loc='upper right', prop={'size': 8})  # Изменение размера легенды и ее расположения
+    plt.grid(True)
+    plt.show()
+
+
+# Создание интерфейса с помощью Tkinter
+app = tk.Tk()
+app.title("SQL Query Optimizer")
+
+frame = tk.Frame(app)
+frame.pack(pady=20)
+
+label = tk.Label(frame, text="SQL Query Optimizer", font=("Arial", 14))
+label.pack(pady=10)
+
+result_text = scrolledtext.ScrolledText(frame, width=60, height=20, wrap=tk.WORD)
+result_text.pack(padx=10, pady=10)
+
+optimize_button = tk.Button(frame, text="Запустить оптимизацию", command=optimize_sql)
+optimize_button.pack(pady=10)
+
+app.mainloop()
