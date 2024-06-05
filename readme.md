@@ -10,6 +10,7 @@ Libraries that were used in the code:
 4) matplotlib (for creating graphs)
 5) deap (to implement a genetic algorithm
 6) time (to measure query execution time)
+7) tkinter (for creating a graphical interface)
 
 To work, you need a MySQL database (mydb), the creation script and the model are added to the project.
 MySQL Workbench version 8.0 is used to work with the database.
