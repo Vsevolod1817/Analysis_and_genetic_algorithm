@@ -14,3 +14,4 @@ Libraries that were used in the code:
 
 To work, you need a MySQL database (mydb), the creation script and the model are added to the project.
 MySQL Workbench version 8.0 is used to work with the database.
+The Pycharm Community Edition 2022 IDE was used for work.3.2 and the Python 3.9 programming language
